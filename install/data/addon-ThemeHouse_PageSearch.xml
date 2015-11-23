@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="ThemeHouse_PageSearch" title="[⌂] Page Search" version_string="1.0.1a" version_id="1447261019" url="http://xf.themehouse.io/" install_callback_class="ThemeHouse_Install" install_callback_method="install" uninstall_callback_class="ThemeHouse_Install" uninstall_callback_method="uninstall">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <admin_template_modifications/>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="controller_pre_dispatch" execute_order="10" callback_class="ThemeHouse_PageSearch_Listener_ControllerPreDispatch" callback_method="controllerPreDispatch" active="1" hint="" description=""/>
+    <listener event_id="file_health_check" execute_order="10" callback_class="ThemeHouse_PageSearch_Listener_FileHealthCheck" callback_method="fileHealthCheck" active="1" hint="" description=""/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="ThemeHouse_PageSearch_Listener_LoadClassDataWriter" callback_method="loadClassDataWriter" active="1" hint="" description=""/>
+    <listener event_id="load_class_model" execute_order="10" callback_class="ThemeHouse_PageSearch_Listener_LoadClassModel" callback_method="loadClassModel" active="1" hint="" description=""/>
+    <listener event_id="template_hook" execute_order="10" callback_class="ThemeHouse_PageSearch_Listener_TemplateHook" callback_method="templateHook" active="1" hint="" description=""/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <email_template_modifications/>
+  <optiongroups/>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="search_pages" version_id="0" version_string="1.0.0"><![CDATA[Search Pages]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates>
+    <template title="search_form_page" version_id="0" version_string="1.0.0"><![CDATA[<xen:title>{xen:phrase search_pages}</xen:title>
+
+<xen:navigation>
+	<xen:breadcrumb href="{xen:link full:search}">{xen:phrase search}</xen:breadcrumb>
+</xen:navigation>
+
+<form action="{xen:link 'search/search'}" method="page" class="xenForm AutoValidator"
+	data-optInOut="optIn"
+	data-redirect="true">
+
+	<xen:include template="search_form_tabs" />
+	
+	<dl class="ctrlUnit">
+		<dt><label for="ctrl_keywords">{xen:phrase keywords}:</label></dt>
+		<dd>
+			<ul>
+				<li><input type="search" name="keywords" value="{$search.keywords}" results="0" class="textCtrl" id="ctrl_keywords" autofocus="true" /></li>
+				<li><label for="ctrl_title_only"><input type="checkbox" name="title_only" id="ctrl_title_only" value="1" {xen:checked '{$search.title_only}'} /> {xen:phrase search_titles_only}</label></li>
+			</ul>
+		</dd>
+	</dl>
+
+	<fieldset>
+		<dl class="ctrlUnit">
+			<dt><label for="ctrl_date">{xen:phrase newer_than}:</label></dt>
+			<dd>
+				<input type="date" name="date" value="{$search.date}" class="textCtrl" id="ctrl_date" />
+			</dd>
+		</dl>
+	</fieldset>
+
+	<xen:if is="{$supportsRelevance}">
+		<dl class="ctrlUnit">
+			<dt><label>{xen:phrase order_by}:</label></dt>
+			<dd>
+				<ul>
+					<li><label for="ctrl_order_date"><input type="radio" name="order" id="ctrl_order_date" value="date" checked="checked" /> {xen:phrase most_recent}</label></li>
+					<li><label for="ctrl_order_relevance"><input type="radio" name="order" id="ctrl_order_relevance" value="relevance" /> {xen:phrase relevance}</label></li>
+				</ul>
+			</dd>
+		</dl>
+	<xen:else />
+		<input type="hidden" name="order" value="date" />
+	</xen:if>
+
+	<dl class="ctrlUnit submitUnit">
+		<dt></dt>
+		<dd><input type="submit" value="{xen:phrase search}" accesskey="s" class="button primary" /></dd>
+	</dl>
+
+	<input type="hidden" name="type" value="page" />
+	<input type="hidden" name="_xfToken" value="{$visitor.csrf_token_page}" />
+</form>]]></template>
+    <template title="search_result_page" version_id="0" version_string="1.0.0"><![CDATA[<xen:require css="node_list.css" />
+
+<li id="page-{$page.node_id}" class="searchResult node page primaryContent{xen:if $page.isIgnored, ' ignored'}" data-author="{$page.username}">
+
+	<div class="listBlock pageNodeInfo"><span class="nodeIcon"></span></div>
+
+	<div class="listBlock main">
+		<div class="titleText">
+			<span class="contentType">{xen:phrase page}</span>
+			<h3 class="title{xen:if {$thread.isNew}, ' new'}"><a href="{xen:link pages, $page}">{xen:helper highlight, $page.title, $search.search_query, 'highlight'}</a></h3>
+		</div>
+
+		<blockquote class="snippet">
+			<a href="{xen:link pages, $page}">{xen:helper snippet, $page.message, 150, {xen:array 'term={$search.search_query}', 'emClass=highlight', 'stripQuote=1'}}</a>
+		</blockquote>
+
+		<div class="meta">
+			{xen:phrase page},
+			<xen:datetime time="{$page.updated_date}" />
+		</div>
+	</div>
+</li>]]></template>
+    <template title="th_search_form_tabs_pagesearch" version_id="0" version_string="1.0.0"><![CDATA[<li{xen:if "{$searchType} == 'page'", ' class="active"'}><a href="{xen:link search, '', 'type=page'}">{xen:phrase search_pages}</a></li>]]></template>
+  </templates>
+  <public_template_modifications>
+    <modification template="footer" modification_key="th_copyrightNotice_pageSearch" description="Copyright notice for [⌂] Page Search" execution_order="1" enabled="1" action="callback">
+      <find><![CDATA[/{xen:phrase (?:xenforo|extra)_copyright}/]]></find>
+      <replace><![CDATA[ThemeHouse_Listener_InitDependencies::copyrightNotice]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>
